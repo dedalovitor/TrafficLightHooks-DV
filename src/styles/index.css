@@ -12,9 +12,10 @@
 */
 .traffic-light{
     background: black;
-    padding:10px;
+    padding:20px;
     display: inline-block;
     margin: auto;
+    border-radius: 5%;
 }
 
 .light{
@@ -28,5 +29,5 @@
 .green{background: green;}
 
 .glow{
-    box-shadow: 0px 0px 9px 4px yellow;
+    box-shadow: 0px 0px 20px 10px whitesmoke;
 }
