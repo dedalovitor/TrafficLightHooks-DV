@@ -7,11 +7,11 @@ import rigoImage from "../../img/rigo-baby.jpg";
 export function Home() {
 	const [selectedColor, setSelectedColor] = useState("red");
 	return (
-		
+
 		<div className="trafficLightStructure text-center">
 			<div className="Rect">
-		<rect className="blackStick"></rect>
-		</div>
+				<rect className="blackStick"></rect>
+			</div>
 			<div className="traffic-light">
 				<div
 					onClick={() => setSelectedColor("red")}
@@ -26,7 +26,14 @@ export function Home() {
 					className={"light green" + (selectedColor === "green" ? " glow " : "")}>
 				</div>
 			</div>
+			<div className="Buttons">
+				<div className="d-grid gap-2 col-6 mx-auto">
+					<button className="btn btn-primary" type="button">Turn to each color</button>
+					<button className="btn btn-primary" type="button">add Extra Purple Color</button>
+				</div>
+			</div>
 		</div>
+
 	);
 }
 
