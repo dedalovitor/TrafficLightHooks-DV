@@ -4,6 +4,8 @@ import Light from "./light";
 const Home = () => {
     const [selectedColor, setSelectedColor] = useState("");
     const [colors, setColors] = useState(["red", "yellow", "green"]);
+    const [autoChangeActive, setAutoChangeActive] = useState(false);
+    const [intervalId, setIntervalId] = useState(null);
 
     const handleAddExtraColor = () => {
         const hasPurple = colors.includes("purple");
@@ -14,18 +16,33 @@ const Home = () => {
             setColors([...colors, "purple"]);
         }
     };
-
-    useEffect(() => {
-        let intervalId;
-
-        if (selectedColor !== "") {
-            intervalId = setInterval(() => {
-                setSelectedColor(prevColor => (prevColor === colors.length - 1 ? 0 : prevColor + 1));
-            }, 3000);
-        }
-
-        return () => clearInterval(intervalId);
-    }, [selectedColor, colors]);
+    
+        const toggleAutoChange = () => {
+            if (autoChangeActive) {
+                clearInterval(intervalId);
+                setIntervalId(null);
+            } else {
+                const id = setInterval(() => {
+                    setSelectedColor(prevColor => (prevColor === colors.length - 1 ? 0 : prevColor + 1));
+                }, 3000);
+                setIntervalId(id);
+            }
+            setAutoChangeActive(!autoChangeActive);
+        };
+    
+        useEffect(() => {
+            if (autoChangeActive && !intervalId) {
+                const id = setInterval(() => {
+                    setSelectedColor(prevColor => (prevColor === colors.length - 1 ? 0 : prevColor + 1));
+                }, 3000);
+                setIntervalId(id);
+            }
+            return () => {
+                if (intervalId) {
+                    clearInterval(intervalId);
+                }
+            };
+        }, [autoChangeActive, intervalId, colors]);
 
     const handleChangeColor = () => {
         setSelectedColor(selectedColor === colors.length - 1 ? 0 : selectedColor + 1);
@@ -37,12 +54,6 @@ const Home = () => {
         }
     };
 
-    const stopSelectedColor = () => {
-        let i= colors.indexOf();
-        if (selectedColor == colors[i]) {
-            setSelectedColor("");
-        }
-    };
 
     return (
         <div className="trafficLightStructure text-center">
@@ -62,15 +73,11 @@ const Home = () => {
                     }
 
                     } type="button">{colors.includes("purple") ? "Remove Purple Color" : "Add Extra Purple Color 2"}</button>
-                    <button className="btn btn-primary" onClick={handleChangeColor}
+                    <button className="btn btn-success" onClick={selectFirstColor} type="button">Select First Color</button>
+                    <button className="btn btn-dark" onClick={handleChangeColor} type="button">Change color manually!</button>
+                    <button className="btn btn-danger" onClick={toggleAutoChange}  type="button">{autoChangeActive ? "Stop Auto Change" : "Start Auto Change"}</button>
+                    
 
-                        type="button">Change color!</button>
-                    <button className="btn btn-primary" onClick={selectFirstColor}
-
-                        type="button">Select First Color</button>
-                    <button className="btn btn-primary" onClick={stopSelectedColor}
-
-                        type="button">Stop selected color</button>
                 </div>
 
 
