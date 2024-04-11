@@ -5,11 +5,11 @@ import Light from "./light";
 /*
  * En la home definimos los useStates donde vamos a almacenar los diferentes estados: 
  * - selectedColor: determina la luz que se encuentra seleccionada y setSelectedColor permite definir la nueva luz 
- * que se va a seleccionar, se inicializa en un string vacio "".
+ * que se va a seleccionar, se inicializa en un string vacio "", aunque realmente trabaja con el índice del array de colores: 0 red, 1 yellow, 2 green, etc.
  * - colors: es un array de colores, donde podemos meter más colores mediate setColors, y que podemos recorrer para hacer el map de las luces
  * - AutoChangeActive: se inicializa en false y permite setear el estado del botón de cambio de luz. De esta forma activo hace un start del
  * cambio automático de luz cada 3 segundos.
- * - intervalId: 
+ * - intervalId: permite activar y desactivar el temporizador que cambia de luz cada 3 segundos.
  */
 
 
@@ -30,8 +30,8 @@ const Home = () => {
     };
 /**
  * Esta función se activa al clicar sobre el botón "Add Extra Purple Color 2".
- * Como lo que queremos es que se cree una vez y se borre la luz purple al clicar y volver a clicar sobre el botón
- * creamos una variable con la que determinamos si purple ha sido incluida en el array colors
+ * Como lo que queremos es que se cree una vez al clicar por primera vez y se borre la luz purple al volver a clicar sobre el botón
+ * creamos una variable con la que determinamos si purple ha sido incluida en el array colors llamada hasPurple
  * con if condicional determinamos dentro de una nueva variable updatedColors que si ha sido incluida haga un .filter de todos los colores menos el purple
  * y seteamos el array de colores a updatedColors, si no ha sido incluido, seteamos el array de colores añadiendole purple. 
  * De esta forma conseguimos que se muestre la nueva luz morada en el semáforo, habiendo sido necesario para ello utilizar un estado para poder setearla 
@@ -39,14 +39,23 @@ const Home = () => {
  */
 
         const toggleAutoChange = () => {
-            if (autoChangeActive) {
-                clearInterval(intervalId);
-                setIntervalId(null);
-            } else {
+            if (!autoChangeActive) { //aquí dice si está en true, ya que autoChangeActive = false y !autoChangeActive = true
+                // Si no hay un color seleccionado, selecciona el primer color
+                if (selectedColor === "") {
+                    setSelectedColor(0);
+                }
+        
+                // Comienza a cambiar de color cada 3 segundos
                 const id = setInterval(() => {
-                    setSelectedColor(prevColor => (prevColor === colors.length - 1 ? 0 : prevColor + 1)); // no entiendo por qué se utiliza el prevColor, revisar qué significa esa sintaxis 
+                    setSelectedColor(prevColor => {
+                        return prevColor === colors.length - 1 ? 0 : prevColor + 1; //dentro de setSelectedColor le paso una función flecha, en la que como argumento le paso prevColor
+                    });
                 }, 3000);
                 setIntervalId(id);
+            } else {
+                // Si ya está activo el cambio automático, detén el intervalo
+                clearInterval(intervalId);
+                setIntervalId(null);
             }
             setAutoChangeActive(!autoChangeActive);
         };
@@ -73,17 +82,43 @@ const Home = () => {
                     clearInterval(intervalId);
                 }
             };
-        }, [autoChangeActive, intervalId, colors]);*/
+        }, [autoChangeActive, intervalId, colors]);
+        
+        ***El useEffect se ha revelado innecesario para hacer el cambio de luces, ya que al comentarlo sigue funcionando
 
-    const handleChangeColor = () => {
-        setSelectedColor(selectedColor === colors.length - 1 ? 0 : selectedColor + 1);
-    };
+        */
+
+        const handleChangeColor = () => {
+            setSelectedColor(prevColor => {
+                // Si no se ha seleccionado ningún color, seleccionar el primer color
+                if (prevColor === "") {
+                    return 0;
+                } else {
+                    // Si se ha seleccionado un color, avanzar al siguiente color
+                    return prevColor === colors.length - 1 ? 0 : prevColor + 1;
+                }
+            });
+        };
+        
+
+    /**
+     * sirve para cambiar de color manualmente cada vez que se pulsa el botón
+     */
 
     const selectFirstColor = () => {
         if (selectedColor == "") {
             setSelectedColor(0);
         }
     };
+
+    const deselectColor = () => {
+           return setSelectedColor("");
+        }
+;
+
+    /**
+     * sirve para seleccionar el primer color.
+     */
 
 
     return (
@@ -96,23 +131,39 @@ const Home = () => {
                 })}
             </div>
 
-            <div className="Buttons">
-                <div className="d-grid gap-2 col-6 mx-auto">
-
-                    <button className="btn btn-primary" onClick={() => {
+            <div className="Buttons container  mt-5">
+                
+                    <div className="row">
+                        <div className="column col-6">
+                            <div className="d-grid gap-2 col-6 mx-auto">
+                            <button className="btn btn-primary" onClick={() => {
                         handleAddExtraColor();
                     }
 
                     } type="button">{colors.includes("purple") ? "Remove Purple Color" : "Add Extra Purple Color 2"}</button>
-                    <button className="btn btn-success" onClick={selectFirstColor} type="button">Select First Color</button>
+                    
                     <button className="btn btn-dark" onClick={handleChangeColor} type="button">Change color manually!</button>
                     <button className="btn btn-danger" onClick={toggleAutoChange}  type="button">{autoChangeActive ? "Stop Auto Change" : "Start Auto Change"}</button>
                     
+                            </div>
+                        
+                        </div>
+                        
+                        <div className="column col-6">
+                    <div className="d-grid gap-2 col-6 mx-auto">
+                    <button className="btn btn-success" onClick={selectFirstColor} type="button">Select First Color</button>
+                    <button className="btn btn-dark" onClick={deselectColor} type="button">deselect Color</button> 
+                        </div>        
+                   
+                       </div>
+                    </div>
+
+                                    
 
                 </div>
 
 
-            </div>
+          
 
         </div>
 
